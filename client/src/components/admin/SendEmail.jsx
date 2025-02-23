@@ -76,7 +76,7 @@ const SendEmail = () => {
                 <option value="">Select a recipient</option>
                 {users.map((user) => (
                   <option key={user._id} value={user.email}>
-                    {user.county} ({user.email})
+                    {user.county} ({user.name})
                   </option>
                 ))}
               </select>
