@@ -7,9 +7,9 @@ const SendEmail = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [email, setEmail] = useState("");
+  const [selectedEmails, setSelectedEmails] = useState([]); // Array to store selected emails
   const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // To handle form submission state
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -19,7 +19,7 @@ const SendEmail = () => {
         console.log("Users fetched:", response.data.data); // Debugging user data fetch
       } catch (err) {
         setError("Failed to fetch user data.");
-        console.error("Error fetching users:", err); // Log the error
+        console.error("Error fetching users:", err);
       } finally {
         setLoading(false);
       }
@@ -28,30 +28,39 @@ const SendEmail = () => {
     fetchUsers();
   }, []);
 
+  // Handle checkbox change
+  const handleCheckboxChange = (email) => {
+    setSelectedEmails((prev) =>
+      prev.includes(email)
+        ? prev.filter((e) => e !== email) // Remove if already selected
+        : [...prev, email] // Add if not selected
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !message) {
-      alert("Please select an email and write a message.");
+    if (selectedEmails.length === 0 || !message) {
+      alert("Please select at least one recipient and write a message.");
       return;
     }
 
-    setIsSubmitting(true); // Set submitting state to true
-    console.log("Sending email to:", email); // Debugging: log email being sent
-    console.log("Message being sent:", message); // Debugging: log message being sent
+    setIsSubmitting(true);
+    console.log("Sending email to:", selectedEmails);
+    console.log("Message being sent:", message);
 
     try {
       await axios.post("http://localhost:5000/api/v1/send-email", {
-        email,
-        sms: message, // Ensure you're sending 'sms' instead of 'message'
+        emails: selectedEmails, // Sending an array of emails
+        sms: message,
       });
-      alert("Email sent successfully!");
-      setMessage(""); // Reset message after sending
-      setEmail(""); // Reset email after sending
+      alert("Emails sent successfully!");
+      setMessage("");
+      setSelectedEmails([]); // Reset selected emails
     } catch (err) {
       alert("Failed to send email.");
-      console.error("Error sending email:", err.response?.data?.message || err.message); // Log the error details
+      console.error("Error sending email:", err.response?.data?.message || err.message);
     } finally {
-      setIsSubmitting(false); // Reset submitting state
+      setIsSubmitting(false);
     }
   };
 
@@ -65,39 +74,32 @@ const SendEmail = () => {
           <h2 className="text-center mb-3">Send an Email</h2>
 
           <form onSubmit={handleSubmit}>
-            {/* Select Recipient */}
+            {/* Select Recipients (Checkbox List) */}
             <div className="mb-3">
-              <label className="form-label">Select Recipient</label>
-              <select
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-select"
-              >
-                <option value="">Select a recipient</option>
+              <label className="form-label">Select Recipients</label>
+              <div className="border rounded p-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
                 {users.map((user) => (
-                  <option key={user._id} value={user.email}>
-                    {user.county} ({user.name})
-                  </option>
+                  <div key={user._id} className="form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id={`user-${user._id}`}
+                      value={user.email}
+                      checked={selectedEmails.includes(user.email)}
+                      onChange={() => handleCheckboxChange(user.email)}
+                    />
+                    <label className="form-check-label" htmlFor={`user-${user._id}`}>
+                      {user.county} ({user.name})
+                    </label>
+                  </div>
                 ))}
-              </select>
-            </div>
-
-            {/* Email Field (Read-only) */}
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                value={email}
-                readOnly
-                className="form-control bg-light"
-              />
+              </div>
             </div>
 
             {/* Message Field */}
             <div className="mb-3">
               <label className="form-label">Message</label>
               <textarea
-                name="text"
                 placeholder="Write your message here..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -107,11 +109,7 @@ const SendEmail = () => {
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              className="btn btn-primary w-100"
-              disabled={isSubmitting} // Disable button while submitting
-            >
+            <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
               {isSubmitting ? "Sending..." : "Send Email"}
             </button>
           </form>

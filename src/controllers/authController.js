@@ -262,73 +262,79 @@ const downloadImage = async (req, res) => {
 };
 
 const sendEmail = async (req, res) => {
-  const { email, sms } = req.body;
+  const { emails, sms } = req.body; // Expecting an array of emails
 
   try {
-    // Log the received data for debugging
-    console.log("Email received:", email);
+    console.log("Emails received:", emails);
     console.log("SMS received:", sms);
 
-    // Trim and process the email
-    const emailTrimmed = email.trim().toLowerCase();  // Normalize email
-    let user = await UserModel.findOne({ email: emailTrimmed });
+    if (!emails || emails.length === 0) {
+      return res.status(400).json({ message: "No recipients selected" });
+    }
 
-    if (!user) {
-      console.log(`No user found with email: ${emailTrimmed}`);
-      return res.status(400).json({ message: "User not found" });
+    // Find users by emails
+    let users = await UserModel.find({ email: { $in: emails.map(email => email.trim().toLowerCase()) } });
+
+    if (users.length === 0) {
+      console.log("No users found for the provided emails.");
+      return res.status(400).json({ message: "Users not found" });
     }
 
     // Set up Nodemailer transporter
     var transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
-      secure: false,  // false means TLS
+      secure: false, // TLS enabled
       auth: {
-        user: "md.sohelrana.ice@gmail.com",  // Use your Gmail address here
-        pass: "qwhu jmwb wqzh gnbf"  // Use your Gmail app password here
+        user: "md.sohelrana.ice@gmail.com", // Your Gmail address
+        pass: "qwhu jmwb wqzh gnbf" // Your Gmail app password
       }
     });
 
-    // Send OTP email
-    const info = await transporter.sendMail({
-      from: "md.sohelrana.ice@gmail.com",
-      to: emailTrimmed,
-      subject: "Verify Your Email",
-      html: ` <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>New SMS</title>
-      </head>
-      <body>
-        <div style="max-width: 600px; margin: auto; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9; border-radius: 10px;">
-          <h2 style="text-align: center; color: #333;">📩 New SMS</h2>
-          <p style="font-size: 16px; color: #555; text-align: center;">
-            Hello <strong>${user.name}</strong>,<br>
-            You have received a new SMS:
-          </p>
-          <div style="text-align: center; margin: 20px 0;">
-            <p style="font-size: 18px; font-weight: bold; color: #007bff; background: #e8f0fe; padding: 15px; border-radius: 5px; display: inline-block;">
-              <b><i>${sms}</i></b>
-            </p>
-          </div>
-          <p style="font-size: 14px; color: #777; text-align: center;">
-            This is an automated message. Please do not reply.
-          </p>
-        </div>
-      </body>
-      </html>`
+    // Send emails to all selected users
+    const emailPromises = users.map(user => {
+      return transporter.sendMail({
+        from: "md.sohelrana.ice@gmail.com",
+        to: user.email,
+        subject: "New SMS Notification",
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New SMS</title>
+          </head>
+          <body>
+            <div style="max-width: 600px; margin: auto; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9; border-radius: 10px;">
+              <h2 style="text-align: center; color: #333;">📩 New SMS</h2>
+              <p style="font-size: 16px; color: #555; text-align: center;">
+                Hello <strong>${user.name}</strong>,<br>
+                You have received a new SMS:
+              </p>
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-size: 18px; font-weight: bold; color: #007bff; background: #e8f0fe; padding: 15px; border-radius: 5px; display: inline-block;">
+                  <b><i>${sms}</i></b>
+                </p>
+              </div>
+              <p style="font-size: 14px; color: #777; text-align: center;">
+                This is an automated message. Please do not reply.
+              </p>
+            </div>
+          </body>
+          </html>`
+      });
     });
 
-    // Update SMS in the database for the user
-    const updatedUser = await UserModel.updateOne({ email: emailTrimmed }, { sms: sms });
-    console.log("Updated SMS in database:", updatedUser); // Log update
+    await Promise.all(emailPromises);
 
-    // Send success response
-    res.status(200).json({ message: "Your sms has been sent successfully" });
+    // Update SMS in the database for all selected users
+    await UserModel.updateMany({ email: { $in: emails } }, { sms: sms });
+
+    console.log("Emails sent successfully to:", emails);
+    res.status(200).json({ message: "Emails sent successfully!" });
   } catch (e) {
-    console.error("Error occurred:", e); // Log full error
+    console.error("Error occurred:", e);
     res.status(500).json({ status: "failed", message: "Internal Server Error", error: e.message });
   }
 };
