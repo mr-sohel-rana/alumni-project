@@ -30,6 +30,9 @@ const AdminMenu = () => {
         <div className="mb-3 w-100">
           <Link to="/dashboard/admin/create-gallery" className="btn btn-primary w-100">Create Gallery</Link>
         </div>
+        <div className="mb-3 w-100">
+          <Link to="/dashboard/admin/studentlist" className="btn btn-primary w-100">student list</Link>
+        </div>
 
         <div className="mb-3 w-100">
           <Link to="/dashboard/admin/create-carousel" className="btn btn-secondary w-100">Create Carousel Image</Link>

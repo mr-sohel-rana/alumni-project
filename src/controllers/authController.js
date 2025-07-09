@@ -339,7 +339,36 @@ const sendEmail = async (req, res) => {
   }
 };
 
+
+ const mongoose = require('mongoose'); 
+
+ const updateUserRole = async (req, res) => {
+  console.log('PUT /update-role/:id called');
+  const { id } = req.params;
+  console.log('User ID param:', id);
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ status: "error", message: "Invalid user ID" });
+  }
+
+  const { role } = req.body;
+  console.log("Role to update:", role);
+
+  try {
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { role }, { new: true, runValidators: true });
+    if (!updatedUser) {
+      console.log("User not found for ID:", id);
+      return res.status(404).json({ status: "error", message: "User not found" });
+    }
+    res.status(200).json({ status: "success", message: "User role updated", data: updatedUser });
+  } catch (error) {
+    console.error("Update role error:", error);
+    res.status(500).json({ status: "failed", message: error.message });
+  }
+};
+
 module.exports = {
   read,
-  register,user,updateUser,login,galary,updateGalary,deleteItem,signleImage,downloadImage,sendEmail
+  register,user,updateUser,login,galary,updateGalary,deleteItem,signleImage,
+  downloadImage,sendEmail,updateUserRole
 };

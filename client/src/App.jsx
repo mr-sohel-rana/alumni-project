@@ -17,6 +17,7 @@ import CreateGalary from "./components/admin/CreateGalary";
 import Galary from "./components/pages/Galary";
 import Carosel from "./components/admin/Carosel";
 import SendEmail from './components/admin/SendEmail';
+import StudentList from "./components/admin/StudentList";
  
  
  
@@ -40,6 +41,7 @@ function App() {
           <Route path="admin/update-profile/:id" element={<AdminUpdate />} />
           <Route path="admin/create-gallery" element={<CreateGalary />} />
           <Route path="admin/create-carousel" element={<Carosel />} />
+          <Route path="admin/studentlist" element={<StudentList />} />
           <Route path="admin/sendemail" element={<SendEmail />} />
         </Route>
         {/* Private Routes */}

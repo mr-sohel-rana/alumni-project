@@ -15,6 +15,10 @@ const upload = require("./src/multer/multer");
 const authRoutes = require("./src/routes/api");
 
 const app = express();
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Middleware
 app.use(cookieParser());

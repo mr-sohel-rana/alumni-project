@@ -41,5 +41,6 @@ router.put("/carocel/:id", upload.single("image"), carosolController.updateCaroc
 router.delete("/carocel/:id", carosolController.deleteCarocelImage);
 
 
+router.put('/update-role/:id', controller.updateUserRole);
 
 module.exports=router;
