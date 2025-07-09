@@ -145,7 +145,7 @@ const StudentList = () => {
             <tbody>
               {currentUsers.map((user) => (
                 <tr key={user._id}>
-                  <td className="text-center">
+                   <td className="text-center">
                     {user.image ? (
                       <img
                         src={`http://localhost:5000/uploads/${user.image}`}
@@ -155,8 +155,7 @@ const StudentList = () => {
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-circle bg-secondary"></div>
-                    )}
-                  </td>
+                    )}</td>
                   <td>{user.name}</td>
                   <td>{user.session}</td>
                   <td>{user.profession}</td>
