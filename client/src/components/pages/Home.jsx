@@ -43,26 +43,45 @@ const Home = () => {
   }, []);
 
   // Render user card by role
-  const renderUserCard = (user) => (
+    const renderUserCard = (user) => (
+  <div
+    key={user._id}
+    className="card shadow m-3"
+    style={{ width: '25rem', borderRadius: '0.5rem' }}
+  >
+    <img
+      src={user.image ? `http://localhost:5000/uploads/${user.image}` : 'https://via.placeholder.com/150'}
+      className="card-img-top"
+      alt={user.name}
+      style={{ height: '300px', objectFit: 'cover', borderRadius: '0.5rem 0.5rem 0 0' }}
+    />
     <div
-      key={user._id}
-      className="card shadow-sm m-3"
-      style={{ width: '18rem' }}
+      className="card-body d-flex flex-column align-items-center"
+      style={{ textAlign: 'center' }}
     >
-      <img
-        src={user.image ? `http://localhost:5000/uploads/${user.image}` : 'https://via.placeholder.com/150'}
-        className="card-img-top"
-        alt={user.name}
-        style={{ height: '200px', objectFit: 'cover' }}
-      />
-      <div className="card-body">
-        <h5 className="card-title">{user.name}</h5>
-        <p className="card-text mb-1"><strong>Role:</strong> {user.role === 1 ? 'Admin' : user.role === 2 ? 'Sir' : 'Other'}</p>
-        <p className="card-text mb-1"><strong>Profession:</strong> {user.profession || 'N/A'}</p>
-        <p className="card-text"><strong>Bio:</strong> {user.bio || 'No bio available'}</p>
-      </div>
+      <p className="card-text mb-1">
+        <strong>Role:</strong> {user.role === 1 ? 'Admin' : user.role === 2 ? 'Sir' : 'Other'}
+      </p>
+      <p className="card-text mb-3">
+        <strong>Profession:</strong> {user.profession || 'N/A'}
+      </p>
+      <h5
+        className="card-title"
+        style={{
+          backgroundColor: '#007bff',
+          color: 'white',
+          width: '100%',
+          padding: '0.5rem',
+          borderRadius: '0 0 0.5rem 0.5rem',
+        }}
+      >
+        {user.name}
+      </h5>
     </div>
-  );
+  </div>
+);
+
+
 
   return (
     <Layout>
@@ -133,6 +152,31 @@ const Home = () => {
           <span className="visually-hidden">Next</span>
         </button>
       </div>
+
+      
+
+      {/* about our alumni */}
+<section className="about-alumni py-5 bg-light">
+  <div className="container">
+    <h2 className="text-center  mb-4 text-primary fw-bold">About Our Alumni</h2>
+    <div className="row justify-content-center">
+      <div className="col-md-10">
+       <div
+  className="card shadow border-0 rounded-4 p-4"
+  style={{ backgroundColor: "#008080" }} // a light sky blue
+>
+
+          <p className="fs-5 text-white" style={{ lineHeight: '1.8' }}>
+            The alumni network of <strong>Pabna University of Science and Technology (PUST)</strong> is a growing community of bright minds who have shaped their future through the <strong>Information and Communication Engineering (ICE)</strong> department. Over the past decade, nearly ten batches of students have successfully completed their studies here, building a strong foundation in modern computing and information systems.
+          </p>
+          <p className="fs-5 text-white" style={{ lineHeight: '1.8' }}>
+            Our department has proudly organized one grand alumni event, bringing together former and current students, faculty, and professionals to celebrate achievements, foster collaboration, and inspire the next generation. We believe in strengthening bonds and creating opportunities through our alumni — a bridge between past and future.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* User Cards by Role */}
       <div className="container my-5">

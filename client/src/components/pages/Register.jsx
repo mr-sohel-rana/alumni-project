@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import Layout from "../layout/Layout";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -16,22 +16,20 @@ const Register = () => {
     session: "",
     profession: "",
     institution: "",
-    county: "",
+    country: "",
     facebook: "",
     linkedin: "",
     paper: "",
     district: "",
     bio: "",
-    image: "", // Image file is handled separately
+    image: "",
   });
 
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
 
-  // Function to handle form input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
     if (name === "image" && files.length > 0) {
       const file = files[0];
       setFormValue((prev) => ({ ...prev, image: file }));
@@ -44,7 +42,6 @@ const Register = () => {
     }
   };
 
-  // Function to validate form fields
   const validateForm = () => {
     for (const key in formValue) {
       if (!formValue[key]) {
@@ -55,13 +52,14 @@ const Register = () => {
     return true;
   };
 
-  // Function to handle form submission
   const submitHandle = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     const formData = new FormData();
-    Object.entries(formValue).forEach(([key, value]) => formData.append(key, value));
+    Object.entries(formValue).forEach(([key, value]) =>
+      formData.append(key, value)
+    );
 
     try {
       await axios.post("http://localhost:5000/api/v1/register", formData, {
@@ -71,83 +69,318 @@ const Register = () => {
       toast.success("Registration successful!");
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+      toast.error(
+        error.response?.data?.message || "Registration failed. Please try again."
+      );
     }
   };
 
-  // Function to generate batch options
   const generateBatches = () => Array.from({ length: 12 }, (_, i) => i + 1);
+ const generateSessions = () => {
+  return Array.from({ length: 21 }, (_, i) => {
+    const startYear = 2010 + i;
+    const endYear = startYear + 1;
+    return `${startYear}-${endYear}`;
+  }).reverse(); // optional, to show latest sessions first
+};
 
-  // Function to generate session options (2010-2030)
-  const generateSessions = () => Array.from({ length: 21 }, (_, i) => 2010 + i);
 
   return (
     <Layout>
-      <form
-        onSubmit={submitHandle}
+      {/* Container with background image */}
+      <div
         style={{
-          maxWidth: "500px",
-          margin: "0 auto",
-          padding: "30px",
-          backgroundColor: "#ffffff",
-          borderRadius: "12px",
-          boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
+          minHeight: "100vh",
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1543039625-14cbd3802e7d?q=80&w=874&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "40px",
         }}
       >
-        <h3 className="text-center text-primary mb-4">Register</h3>
+        <form
+          onSubmit={submitHandle}
+          style={{
+            width: "100%",
+            maxWidth: "1000px",
+            padding: "40px",
+            backgroundColor: "rgba(255, 255, 255, 0.15)", // transparent white
+            borderRadius: "12px",
+            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)", // for Safari support
+            border: "1px solid rgba(255, 255, 255, 0.18)",
+            color: "white",
+            fontSize:"25px"
+          }}
+        >
+          <h3 className="text-center mb-4" style={{ color: "#blue", fontSize: "30px", }}>
+            Register
+          </h3>
 
-        {/* Text Fields */}
-        {["name", "email", "password", "phone", "address", "profession", "institution", "county", "facebook", "linkedin", "paper", "district", "bio"].map(
-          (field) => (
-            <div key={field} className="mb-3">
+          {/* Personal Info */}
+          <h5 className="mb-3" style={{ color: "#blue", fontSize: "28px", }}>
+            Personal Information
+          </h5>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label>Name</label>
               <input
-                name={field}
-                type={field === "password" ? "password" : "text"}
+                name="name"
+                type="text"
                 className="form-control"
-                placeholder={`Enter your ${field}`}
-                value={formValue[field]}
+                placeholder="Enter your name"
+                value={formValue.name}
                 onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
               />
             </div>
-          )
-        )}
+            <div className="col-md-6 mb-3">
+              <label>Email</label>
+              <input
+                name="email"
+                type="email"
+                className="form-control"
+                placeholder="Enter your email"
+                value={formValue.email}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              />
+            </div>
+          </div>
 
-        {/* Batch Dropdown */}
-        <div className="mb-3">
-          <select name="batch" className="form-control" value={formValue.batch} onChange={handleChange}>
-            <option value="">Select Batch</option>
-            {generateBatches().map((batch) => (
-              <option key={batch} value={batch}>{batch} Batch</option>
-            ))}
-          </select>
-        </div>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label>Password</label>
+              <input
+                name="password"
+                type="password"
+                className="form-control"
+                placeholder="Enter your password"
+                value={formValue.password}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label>Phone</label>
+              <input
+                name="phone"
+                type="text"
+                className="form-control"
+                placeholder="Enter your phone number"
+                value={formValue.phone}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              />
+            </div>
+          </div>
 
-        {/* Session Dropdown */}
-        <div className="mb-3">
-          <select name="session" className="form-control" value={formValue.session} onChange={handleChange}>
-            <option value="">Select Session</option>
-            {generateSessions().map((session) => (
-              <option key={session} value={session}>{session}-{session + 1}</option>
-            ))}
-          </select>
-        </div>
+          <div className="mb-3">
+            <label>Address</label>
+            <input
+              name="address"
+              type="text"
+              className="form-control"
+              placeholder="Enter your address"
+              value={formValue.address}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
 
-        {/* Image Upload */}
-        <div className="mb-3 text-center">
-          <input name="image" type="file" className="form-control" accept="image/*" onChange={handleChange} />
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label>District</label>
+              <input
+                name="district"
+                type="text"
+                className="form-control"
+                placeholder="Enter your district"
+                value={formValue.district}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label>Country</label>
+              <input
+                name="country"
+                type="text"
+                className="form-control"
+                placeholder="Enter your country"
+                value={formValue.country}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              />
+            </div>
+          </div>
+
+          {/* Academic Info */}
+          <h5 className="mt-4 mb-3" style={{ color: "#blue", fontSize: "30px", }}>
+            Academic & Professional
+          </h5>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label>Batch</label>
+              <select
+                name="batch"
+                className="form-control"
+                value={formValue.batch}
+                onChange={handleChange}
+                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+              >
+                <option value="">Select Batch</option>
+                {generateBatches().map((batch) => (
+                  <option key={batch} value={batch}>
+                    {batch} Batch
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6 mb-3">
+              <label>Session</label>
+              <select
+  name="session"
+  className="form-control"
+  value={formValue.session}
+  onChange={handleChange}
+  style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+>
+  <option value="">Select Session</option>
+  {generateSessions().map((session) => (
+    <option key={session} value={session}>
+      {session}
+    </option>
+  ))}
+</select>
+
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label>Profession</label>
+            <input
+              name="profession"
+              type="text"
+              className="form-control"
+              placeholder="Your profession"
+              value={formValue.profession}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label>Institution</label>
+            <input
+              name="institution"
+              type="text"
+              className="form-control"
+              placeholder="Your institution"
+              value={formValue.institution}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+
+          {/* Social Media */}
+          <h5 className="mt-4 mb-3"  style={{ color: "#blue", fontSize: "30px", }}>
+            Social Links & Contributions
+          </h5>
+          <div className="mb-3">
+            <label>Facebook</label>
+            <input
+              name="facebook"
+              type="text"
+              className="form-control"
+              placeholder="Facebook profile URL"
+              value={formValue.facebook}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label>LinkedIn</label>
+            <input
+              name="linkedin"
+              type="text"
+              className="form-control"
+              placeholder="LinkedIn profile URL"
+              value={formValue.linkedin}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label>Number of Paper Published</label>
+            <input
+              name="paper"
+              type="number"
+              className="form-control"
+              placeholder="Link to research/paper (optional)"
+              value={formValue.paper}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+
+          {/* Bio */}
+          <div className="mb-3">
+            <label>Short Bio</label>
+            <textarea
+              name="bio"
+              className="form-control"
+              placeholder="Write a short bio"
+              rows={3}
+              value={formValue.bio}
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
+
+          {/* Image Upload */}
+          <h5 className="mt-4 mb-3" style={{ color: "#ddd" }}>
+            Profile Photo
+          </h5>
+          <div className="mb-3">
+            <input
+              name="image"
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={handleChange}
+              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
+            />
+          </div>
           {imagePreview && (
-            <div style={{ marginTop: "10px" }}>
-              <img src={imagePreview} alt="Preview" style={{ width: "200px", height: "200px", borderRadius: "8px", objectFit: "cover" }} />
+            <div className="text-center mb-4">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  border: "2px solid #ddd",
+                }}
+              />
             </div>
           )}
-        </div>
 
-        {/* Submit Button */}
-        <button type="submit" className="btn btn-primary w-100">Register</button>
-      </form>
+          {/* Submit Button */}
+          <button type="submit" className="btn btn-primary w-100 py-2">
+            Register
+          </button>
+        </form>
 
-      {/* Toast Notifications */}
-      <ToastContainer />
+        {/* Toast Notifications */}
+        <ToastContainer />
+      </div>
     </Layout>
   );
 };
