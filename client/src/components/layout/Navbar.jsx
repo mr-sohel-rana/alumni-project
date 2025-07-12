@@ -82,7 +82,7 @@ const Navbar = () => {
       <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
-            <strong>ALUMNI</strong>
+            <strong>DONATE BLOOD</strong>
           </Link>
 
           <button
@@ -106,17 +106,37 @@ const Navbar = () => {
                   }`}
                   to="/"
                 >
-                  Home
+                  HOME
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
                   className={`nav-link ${
-                    window.location.pathname === "/studentList" ? "active" : ""
+                    window.location.pathname === "/donar-list" ? "active" : ""
                   }`}
-                  to="/studentList"
+                  to="/donar-list"
                 >
-                  Student List
+                  DONER LIST
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    window.location.pathname === "/create-post" ? "active" : ""
+                  }`}
+                  to="/create-post"
+                >
+                   NEED DONAR 
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    window.location.pathname === "/posts" ? "active" : ""
+                  }`}
+                  to="/posts"
+                >
+                 POSTS
                 </Link>
               </li>
               <li className="nav-item">
@@ -126,7 +146,7 @@ const Navbar = () => {
                   }`}
                   to="/galary"
                 >
-                  Gallery
+                  OUR DONAR GARALAY
                 </Link>
               </li>
 
@@ -141,7 +161,7 @@ const Navbar = () => {
                   aria-expanded="false"
                   style={{ textDecoration: 'none' }}
                 >
-                  {auth?.user ? auth.user.name : "Account"}
+                  {auth?.user ? auth.user.name : "ACCOUNT"}
                 </Link>
 
                 <ul className="dropdown-menu">

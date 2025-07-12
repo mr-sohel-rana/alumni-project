@@ -4,7 +4,7 @@ import axios from 'axios';
 import Layout from '../layout/Layout';
 
 const SingleProfile = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,7 +55,7 @@ const SingleProfile = () => {
                 <div className="card-body text-center">
                   <h3 className="card-title" style={{ fontSize: '30px' }}>{user.name}</h3>
                   <p className="card-text" style={{ fontSize: '20px' }}>
-                    {user.profession} - {user.batch}
+                    {user.profession}
                   </p>
 
                   {/* Social Media Buttons */}
@@ -91,20 +91,18 @@ const SingleProfile = () => {
                 className="card border-0 shadow-sm p-4 text-black"
                 style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
               >
-                <h2 className="mb-4" style={{ fontSize: '35px' }}>{user.name}'s Profile</h2>
+                <h2 className="mb-4" style={{ fontSize: '35px' }}>{user.name}&apos;s Profile</h2>
 
                 {[
-                  ['Session', user.session],
-                  ['Batch', user.batch],
+                   
+                  ['Name', user.name],
                   ['Email', user.email],
                   ['Phone', user.phone],
                   ['Profession', user.profession],
-                  ['Institution', user.institution || 'N/A'],
-                  ['Country', user.country || 'N/A'],
                   ['District', user.district],
-                  ['Bio', user.bio || 'No bio available'],
-                ].map(([label, value], i) => (
-                  <div key={i} className="mb-3" style={{ fontSize: '20px' }}>
+                  ['Blood Group', user.blood || 'N/A'],
+                ].map(([label, value], index) => (
+                  <div key={index} className="mb-3" style={{ fontSize: '20px' }}>
                     <strong>{label}:</strong> {value}
                   </div>
                 ))}

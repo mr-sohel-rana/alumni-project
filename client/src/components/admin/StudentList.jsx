@@ -1,114 +1,128 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import Layout from '../layout/Layout';
-import { useNavigate } from 'react-router-dom';
+ import { useEffect, useState } from "react";
+import axios from "axios";
+import Layout from "../layout/Layout";
+import { useNavigate } from "react-router-dom";
 
-const StudentList = () => {
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const bloodTypes = [
+  "O", "O+", "O-", "A", "A+", "A-",
+  "B", "B+", "B-", "AB", "AB+", "AB-",
+];
+
+const roleOptions = [
+  { value: 1, label: "admin" },
+  { value: 2, label: "sir" },
+  { value: 3, label: "advisor" },
+  { value: 5, label: "president" },
+  { value: 0, label: "student" },
+];
+
+const statusOptions = [
+  { value: 1, label: "Active" },
+  { value: 0, label: "Inactive" },
+];
+
+export default function Alldata() {
+  /* ───────── state ───────── */
+  const [users, setUsers]             = useState([]);
+  const [filteredUsers, setFiltered]  = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
+
+  /* pagination */
   const [currentPage, setCurrentPage] = useState(1);
-  const [session, setSession] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAboard, setIsAboard] = useState(false);
   const usersPerPage = 10;
+
+  /* filters */
+  const [bloodGroup, setBloodGroup]   = useState("");
+  const [search, setSearch]           = useState("");
+
   const navigate = useNavigate();
 
-  const generateSessions = () => {
-    const sessions = [];
-    for (let i = 2010; i <= 2025; i++) {
-      sessions.push(`${i}-${i + 1}`);
+  /* ───────── helpers ───────── */
+  const updateUserField = async (userId, field, value) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/v1/update-${field}/${userId}`,
+        { [field]: value },
+      );
+
+      setUsers(prev =>
+        prev.map(u =>
+          u._id === userId ? { ...u, [field]: value } : u,
+        ),
+      );
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update user.");
     }
-    return sessions;
   };
 
+  /* ───────── fetch once ───────── */
   useEffect(() => {
-    const fetchUsers = async () => {
+    (async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/read');
-        setUsers(response.data.data);
-        setFilteredUsers(response.data.data);
+        const { data } = await axios.get("http://localhost:5000/api/v1/reads");
+        setUsers(data.data);
+        setFiltered(data.data);
       } catch (err) {
-        setError('Failed to fetch data.');
+        setError("Failed to fetch data.");
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchUsers();
+    })();
   }, []);
 
+  /* ───────── apply filters ───────── */
   useEffect(() => {
-    let filtered = users;
+    let list = [...users];
 
-    if (session) {
-      filtered = filtered.filter(user =>
-        user.session?.toLowerCase().includes(session.toLowerCase())
+    if (bloodGroup) {
+      list = list.filter(
+        (u) => u.blood && u.blood.toLowerCase() === bloodGroup.toLowerCase()
       );
     }
 
-    if (searchQuery) {
-      filtered = filtered.filter(user =>
-        user.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    if (search) {
+      list = list.filter((u) =>
+        u.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    if (isAboard) {
-      filtered = filtered.filter(
-        user => user.country && user.country.toLowerCase() !== 'bangladesh'
-      );
-    }
-
-    setFilteredUsers(filtered);
+    setFiltered(list);
     setCurrentPage(1);
-  }, [session, searchQuery, isAboard, users]);
+  }, [bloodGroup, search, users]);
 
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  /* ───────── helpers ───────── */
+  if (loading) return <div>Loading…</div>;
+  if (error)   return <div>{error}</div>;
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const last   = currentPage * usersPerPage;
+  const first  = last - usersPerPage;
+  const page   = filteredUsers.slice(first, last);
+  const pages  = Math.ceil(filteredUsers.length / usersPerPage);
+  const goTo   = (n) => setCurrentPage(n);
 
-  const handleProfileClick = (userId) => {
-    navigate(`/profile/${userId}`);
-  };
- const updateUserRole = async (userId, newRole) => {
-  try {
-    // Await the axios PUT request to catch errors properly
-    await axios.put(`http://localhost:5000/api/v1/update-role/${userId}`, { role: newRole });
+  const viewProfile = (id) => navigate(`/profile/${id}`);
 
-    // Update the role in local state only after successful response
-    setUsers(prev =>
-      prev.map(user =>
-        user._id === userId ? { ...user, role: newRole } : user
-      )
-    );
-  } catch (error) {
-     
-    alert(error);
-  }
-};
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-
+  /* ───────── ui ───────── */
   return (
     <Layout>
       <div className="flex flex-col min-h-screen bg-light">
-        <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-center text-dark">List of Users</h2>
+        <h2 className="text-3xl text-center font-bold my-4 text-dark">
+          DONOR LIST
+        </h2>
 
-        <div className="d-flex justify-content-between mb-4">
+        {/* filters */}
+        <div className="d-flex justify-content-between m-4 flex-wrap gap-3">
           <select
-            value={session}
-            onChange={(e) => setSession(e.target.value)}
+            value={bloodGroup}
+            onChange={(e) => setBloodGroup(e.target.value)}
             className="form-select form-select-lg w-25"
+            style={{ textAlign: "center", textAlignLast: "center" }}
           >
-            <option value="">Select Session</option>
-            {generateSessions().map((sessionOption, index) => (
-              <option key={index} value={sessionOption}>
-                {sessionOption}
+            <option value="">Select blood group</option>
+            {bloodTypes.map((b) => (
+              <option key={b} value={b} style={{ textAlign: "center" }}>
+                {b}
               </option>
             ))}
           </select>
@@ -116,64 +130,75 @@ const StudentList = () => {
           <input
             type="text"
             className="form-control w-25"
-            placeholder="Search by name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
-
-          <button
-            className="btn btn-primary btn-sm ms-2"
-            onClick={() => setIsAboard(!isAboard)}
-          >
-            {isAboard ? 'Show All Students' : 'Show Abroad Students'}
-          </button>
         </div>
 
+        {/* table */}
         <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl overflow-x-auto">
           <table className="table table-striped table-hover">
             <thead className="table-primary">
               <tr>
                 <th className="text-center">Image</th>
                 <th>Name</th>
-                <th>Session</th>
-                <th>Profession</th>
-                <th>Institution</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Blood Group</th>
+                <th>Phone</th>
+                <th>District</th>
+                <th>Role</th>
+                <th className="text-center">Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {currentUsers.map((user) => (
-                <tr key={user._id}>
-                   <td className="text-center">
-                    {user.image ? (
+              {page.map((u) => (
+                <tr key={u._id}>
+                  <td className="text-center">
+                    {u.image ? (
                       <img
-                        src={`http://localhost:5000/uploads/${user.image}`}
-                        alt={user.name}
+                        src={`http://localhost:5000/uploads/${u.image}`}
+                        alt={u.name}
                         className="rounded-circle"
-                        style={{ height: '40px', width: '40px' }}
+                        style={{ height: 40, width: 40 }}
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-circle bg-secondary"></div>
-                    )}</td>
-                  <td>{user.name}</td>
-                  <td>{user.session}</td>
-                  <td>{user.profession}</td>
-                  <td>{user.institution || 'N/A'}</td>
+                      <div
+                        className="rounded-circle bg-secondary"
+                        style={{ height: 40, width: 40 }}
+                      />
+                    )}
+                  </td>
+
+                  <td>{u.name}</td>
+                  <td>{u.blood || "N/A"}</td>
+                  <td>{u.phone || "N/A"}</td>
+                  <td>{u.district || "N/A"}</td>
+
+                  {/* role */}
                   <td>
                     <select
-                      value={user.role}
-                      onChange={(e) => updateUserRole(user._id, Number(e.target.value))}
+                      value={u.role ?? 0}
+                      className="form-select form-select-sm"
+                      onChange={(e) =>
+                        updateUserField(u._id, "role", Number(e.target.value))
+                      }
                     >
-                      <option value={1}>admin</option>
-                      <option value={2}>sir</option>
-                      <option value={3}>advisor</option>
-                      <option value={5}>presedent</option>
-                      <option value={0}>student</option>
+                      {roleOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
                     </select>
                   </td>
-                  <td>
-                    <button onClick={() => handleProfileClick(user._id)} className="btn btn-info btn-sm">
+
+                  
+
+                  <td className="text-center">
+                    <button
+                      onClick={() => viewProfile(u._id)}
+                      className="btn btn-info btn-sm"
+                    >
                       View Profile
                     </button>
                   </td>
@@ -182,37 +207,47 @@ const StudentList = () => {
             </tbody>
           </table>
 
-          <div className="d-flex justify-content-center mt-4">
-            <nav>
-              <ul className="pagination">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                    Previous
-                  </button>
-                </li>
-                {[...Array(totalPages)].map((_, index) => (
-                  <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => paginate(index + 1)}>
-                      {index + 1}
+          {/* pagination */}
+          {pages > 1 && (
+            <div className="d-flex justify-content-center mt-4">
+              <nav>
+                <ul className="pagination">
+                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => goTo(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
                     </button>
                   </li>
-                ))}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
+
+                  {[...Array(pages)].map((_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${currentPage === i + 1 ? "active" : ""}`}
+                    >
+                      <button className="page-link" onClick={() => goTo(i + 1)}>
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+
+                  <li className={`page-item ${currentPage === pages ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => goTo(currentPage + 1)}
+                      disabled={currentPage === pages}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
   );
-};
-
-export default StudentList;
+}

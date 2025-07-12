@@ -18,6 +18,9 @@ import Galary from "./components/pages/Galary";
 import Carosel from "./components/admin/Carosel";
 import SendEmail from './components/admin/SendEmail';
 import StudentList from "./components/admin/StudentList";
+import Post from "./components/pages/Post";
+import AllPost from "./components/pages/AllPost";
+import EditPost from "./components/pages/EditPost";
  
  
  
@@ -31,9 +34,11 @@ function App() {
         <Route path="/galary" element={<Galary />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/studentList" element={<Alldata />} />
+        <Route path="/donar-list" element={<Alldata />} />
         <Route path="/profile/:id" element={<SingleProfile />} />
-
+<Route path="/posts" element={<AllPost />} />
+  <Route path="/create-post" element={<Post/>} />
+  <Route path="/edit-post/:id" element={<EditPost/>} />
         {/* Admin Routes */}
         <Route path="/dashboard" element={<AdminRoutes />}>
           <Route path="admin" element={< Dashboard/>} /> {/* Default child */}
@@ -43,12 +48,16 @@ function App() {
           <Route path="admin/create-carousel" element={<Carosel />} />
           <Route path="admin/studentlist" element={<StudentList />} />
           <Route path="admin/sendemail" element={<SendEmail />} />
+        
+
         </Route>
         {/* Private Routes */}
         <Route path="/dashboard" element={<PriveteRoutes />}>
           <Route path="user" element={< UserDashboard/>} /> {/* Default child */}
           <Route path="user/profile" element={<Profile />} />
           <Route path="user/update-profile/:id" element={<Update />} />
+          
+
         </Route>
       </Routes>
     </>

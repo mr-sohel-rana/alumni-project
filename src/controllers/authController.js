@@ -11,6 +11,11 @@ const read = async (req, res) => {
   const users = await UserModel.find({});
   res.status(200).json({ status: "success", data: users });
 };
+const reads = async (req, res) => {
+ 
+  res.status(200).json({ status: "success route"});
+};
+
 
 const user = async (req, res) => {
   try {
@@ -27,7 +32,7 @@ const user = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, batch, session, phone, profession, institution, country, facebook, linkedin, paper, district, bio } = req.body;
+    const { name, email, password,blood, phone, profession,facebook, linkedin,district} = req.body;
     const image = req.file ? req.file.filename : null;
 
     const isExist = await UserModel.findOne({ email });
@@ -42,17 +47,12 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      batch,
-      session,
       phone,
+      blood,
       profession,
-      institution,
-      country,
       facebook,
       linkedin,
-      paper,
       district,
-      bio,
       role: 0
     });
 
@@ -320,5 +320,6 @@ module.exports = {
   signleImage,
   downloadImage,
   sendEmail,
-  updateUserRole
+  updateUserRole,
+  reads
 };
