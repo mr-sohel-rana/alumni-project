@@ -226,11 +226,13 @@ const downloadImage = async (req, res) => {
     res.status(500).json({ status: "failed", error: e.message });
   }
 };
+  
 
 const sendEmail = async (req, res) => {
   const { emails, sms } = req.body;
 
   try {
+    // Validation
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return res.status(400).json({ message: "No recipients selected" });
     }
@@ -245,21 +247,18 @@ const sendEmail = async (req, res) => {
       return res.status(400).json({ message: "Users not found" });
     }
 
+    // ✅ FIXED: Simplified and corrected Gmail configuration
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      service: "gmail",
       auth: {
-        user: "md.sohelrana.ice@gmail.com", // ⚠️ WARNING: Move to .env
-        pass: "fwka vzpe nipb gdaw ",         // ⚠️ WARNING: Move to .env
-      },
-      tls: {
-        rejectUnauthorized: false,
+        user: "md.sohelrana.ice@gmail.com",
+        pass: "fwkavzpenipbgdaw", // ✅ No spaces in App Password
       },
     });
 
     await transporter.verify();
 
+    // Send emails
     for (const user of users) {
       try {
         await transporter.sendMail({
@@ -276,7 +275,7 @@ const sendEmail = async (req, res) => {
           `,
         });
       } catch (mailError) {
-        console.error(`Failed to send email to ${user.email}:`, mailError);
+        console.error(`Failed to send email to ${user.email}:`, mailError.message);
       }
     }
 
@@ -284,7 +283,11 @@ const sendEmail = async (req, res) => {
 
     res.status(200).json({ message: "Emails sent successfully!" });
   } catch (e) {
-    res.status(500).json({ status: "failed", message: "Internal Server Error", error: e.message });
+    res.status(500).json({
+      status: "failed",
+      message: "Internal Server Error",
+      error: e.message,
+    });
   }
 };
 

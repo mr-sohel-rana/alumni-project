@@ -18,6 +18,7 @@ import Galary from "./components/pages/Galary";
 import Carosel from "./components/admin/Carosel";
 import SendEmail from './components/admin/SendEmail';
 import StudentList from "./components/admin/StudentList";
+import Association from "./components/pages/Association";
  
  
  
@@ -33,6 +34,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/studentList" element={<Alldata />} />
         <Route path="/profile/:id" element={<SingleProfile />} />
+        <Route path="/association/" element={<Association />} />
 
         {/* Admin Routes */}
         <Route path="/dashboard" element={<AdminRoutes />}>

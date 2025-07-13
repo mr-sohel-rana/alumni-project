@@ -122,6 +122,16 @@ const Navbar = () => {
               <li className="nav-item">
                 <Link
                   className={`nav-link ${
+                    window.location.pathname === "/association" ? "active" : ""
+                  }`}
+                  to="/association"
+                >
+                  association memeber
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
                     window.location.pathname === "/galary" ? "active" : ""
                   }`}
                   to="/galary"

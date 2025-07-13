@@ -1,4 +1,4 @@
- import React, { useEffect, useState } from 'react';
+ import  { useEffect, useState } from 'react';
 import Layout from '../layout/Layout';
 import axios from 'axios';
 
@@ -108,11 +108,7 @@ const Home = () => {
                     alt="Carousel"
                     style={{ objectFit: 'cover', maxHeight: '400px' }}
                   />
-                  <div className="position-absolute top-50 start-50 translate-middle text-center text-white">
-                    <h3 className="text-primary">
-                      ALUMNI STUDENT OF PABNA UNIVERSITY OF SCIENCE AND TECHNOLOGY
-                    </h3>
-                  </div>
+                   
                 </div>
               </div>
             ))
