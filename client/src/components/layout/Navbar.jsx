@@ -79,7 +79,7 @@ const Navbar = () => {
         }
       `}</style>
 
-      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+      <nav className="navbar navbar-expand-lg navbar-light  bg-gray-100 shadow-sm">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             <strong>ALUMNI</strong>

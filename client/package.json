@@ -14,6 +14,7 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "framer-motion": "^12.23.5",
     "helmet": "^8.0.0",
     "jwt-decode": "^4.0.0",
     "nodemailer": "^6.10.0",

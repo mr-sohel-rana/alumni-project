@@ -1,9 +1,24 @@
-import { useEffect, useState } from 'react';
+ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 
+// 🔑 Centralised role map ‑ update here only
+export const ROLES = [
+  { id: 0, label: 'Student' },
+  { id: 1, label: 'Advisory Panel' },
+  { id: 2, label: 'President' },
+  { id: 3, label: 'Vice‑President' },
+  { id: 4, label: 'General Secretary' },
+  { id: 5, label: 'Joint General Secretary' },
+  { id: 6, label: 'Organizing Secretary' },
+  { id: 7, label: 'Office Secretary' },
+  { id: 8, label: 'Publicity Secretary' },
+  { id: 9, label: 'Executive Members' },
+];
+
 const StudentList = () => {
+  // ──────────────────────────────── state ────────────────────────────────
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,10 +26,11 @@ const StudentList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [session, setSession] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAboard, setIsAboard] = useState(false);
+  const [isAboard, setIsAboard] = useState(false); // TODO: consider renaming to isAbroad
   const usersPerPage = 10;
   const navigate = useNavigate();
 
+  // ───────────────────────────── generate sessions ───────────────────────
   const generateSessions = () => {
     const sessions = [];
     for (let i = 2010; i <= 2025; i++) {
@@ -23,12 +39,13 @@ const StudentList = () => {
     return sessions;
   };
 
+  // ───────────────────────────── fetch users ─────────────────────────────
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/read');
-        setUsers(response.data.data);
-        setFilteredUsers(response.data.data);
+        const { data } = await axios.get('http://localhost:5000/api/v1/read');
+        setUsers(data.data);
+        setFilteredUsers(data.data);
       } catch (err) {
         setError('Failed to fetch data.');
       } finally {
@@ -39,6 +56,7 @@ const StudentList = () => {
     fetchUsers();
   }, []);
 
+  // ───────────────────────────── filters ────────────────────────────────
   useEffect(() => {
     let filtered = users;
 
@@ -64,6 +82,7 @@ const StudentList = () => {
     setCurrentPage(1);
   }, [session, searchQuery, isAboard, users]);
 
+  // ───────────────────────── pagination helpers ─────────────────────────
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -71,34 +90,39 @@ const StudentList = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // ─────────────────────────── navigation ───────────────────────────────
   const handleProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
- const updateUserRole = async (userId, newRole) => {
-  try {
-    // Await the axios PUT request to catch errors properly
-    await axios.put(`http://localhost:5000/api/v1/update-role/${userId}`, { role: newRole });
 
-    // Update the role in local state only after successful response
-    setUsers(prev =>
-      prev.map(user =>
-        user._id === userId ? { ...user, role: newRole } : user
-      )
-    );
-  } catch (error) {
-     
-    alert(error);
-  }
-};
+  // ─────────────────────────── role updater ─────────────────────────────
+  const updateUserRole = async (userId, newRole) => {
+    try {
+      await axios.put(`http://localhost:5000/api/v1/update-role/${userId}`, {
+        role: newRole,
+      });
 
+      // Update local state (users & filteredUsers) after successful response
+      setUsers(prev =>
+        prev.map(user => (user._id === userId ? { ...user, role: newRole } : user))
+      );
+    } catch (err) {
+      alert(err);
+    }
+  };
+
+  // ─────────────────────────────── render ───────────────────────────────
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <Layout>
       <div className="flex flex-col min-h-screen bg-light">
-        <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-center text-dark">List of Users</h2>
+        <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-center text-dark">
+          List of Users
+        </h2>
 
+        {/* ─────────────── filters ─────────────── */}
         <div className="d-flex justify-content-between mb-4">
           <select
             value={session}
@@ -129,6 +153,7 @@ const StudentList = () => {
           </button>
         </div>
 
+        {/* ─────────────── table ─────────────── */}
         <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-7xl overflow-x-auto">
           <table className="table table-striped table-hover">
             <thead className="table-primary">
@@ -138,14 +163,14 @@ const StudentList = () => {
                 <th>Session</th>
                 <th>Profession</th>
                 <th>Institution</th>
-                <th>Status</th>
+                <th>Role</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {currentUsers.map((user) => (
                 <tr key={user._id}>
-                   <td className="text-center">
+                  <td className="text-center">
                     {user.image ? (
                       <img
                         src={`http://localhost:5000/uploads/${user.image}`}
@@ -155,7 +180,8 @@ const StudentList = () => {
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-circle bg-secondary"></div>
-                    )}</td>
+                    )}
+                  </td>
                   <td>{user.name}</td>
                   <td>{user.session}</td>
                   <td>{user.profession}</td>
@@ -165,15 +191,18 @@ const StudentList = () => {
                       value={user.role}
                       onChange={(e) => updateUserRole(user._id, Number(e.target.value))}
                     >
-                      <option value={1}>admin</option>
-                      <option value={2}>sir</option>
-                      <option value={3}>advisor</option>
-                      <option value={5}>presedent</option>
-                      <option value={0}>student</option>
+                      {ROLES.map(({ id, label }) => (
+                        <option key={id} value={id}>
+                          {label}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td>
-                    <button onClick={() => handleProfileClick(user._id)} className="btn btn-info btn-sm">
+                    <button
+                      onClick={() => handleProfileClick(user._id)}
+                      className="btn btn-info btn-sm"
+                    >
                       View Profile
                     </button>
                   </td>
@@ -182,16 +211,24 @@ const StudentList = () => {
             </tbody>
           </table>
 
+          {/* ─────────────── pagination ─────────────── */}
           <div className="d-flex justify-content-center mt-4">
             <nav>
               <ul className="pagination">
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
                     Previous
                   </button>
                 </li>
                 {[...Array(totalPages)].map((_, index) => (
-                  <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                  <li
+                    key={index}
+                    className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                  >
                     <button className="page-link" onClick={() => paginate(index + 1)}>
                       {index + 1}
                     </button>

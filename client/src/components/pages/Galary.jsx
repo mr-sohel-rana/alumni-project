@@ -40,7 +40,7 @@ const Galary = () => {
       <div className="container mt-4">
         <div className="row">
           {images.map((image) => (
-            <div className="col-md-3 mb-4" key={image._id}>
+            <div className="col-md-3  mb-4" key={image._id}>
               <img
                 src={`http://localhost:5000/uploads/${image.image}`}
                 alt={image.title}
