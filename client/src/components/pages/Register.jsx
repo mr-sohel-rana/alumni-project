@@ -11,18 +11,12 @@ const Register = () => {
     email: "",
     password: "",
     phone: "",
-    address: "",
-    batch: "",
-    session: "",
     profession: "",
-    institution: "",
-    country: "",
     facebook: "",
     linkedin: "",
-    paper: "",
     district: "",
-    bio: "",
     image: "",
+    blood: "",    // add bloodGroup here
   });
 
   const [imagePreview, setImagePreview] = useState(null);
@@ -60,6 +54,7 @@ const Register = () => {
     Object.entries(formValue).forEach(([key, value]) =>
       formData.append(key, value)
     );
+    s
 
     try {
       await axios.post("http://localhost:5000/api/v1/register", formData, {
@@ -75,15 +70,20 @@ const Register = () => {
     }
   };
 
-  const generateBatches = () => Array.from({ length: 12 }, (_, i) => i + 1);
- const generateSessions = () => {
-  return Array.from({ length: 21 }, (_, i) => {
-    const startYear = 2010 + i;
-    const endYear = startYear + 1;
-    return `${startYear}-${endYear}`;
-  }).reverse(); // optional, to show latest sessions first
-};
-
+  const bloodTypes = [
+    "O",
+    "O+",
+    "O-",
+    "A",
+    "A+",
+    "A-",
+    "B",
+    "B+",
+    "B-",
+    "AB",
+    "AB+",
+    "AB-",
+  ];
 
   return (
     <Layout>
@@ -114,15 +114,18 @@ const Register = () => {
             WebkitBackdropFilter: "blur(8px)", // for Safari support
             border: "1px solid rgba(255, 255, 255, 0.18)",
             color: "white",
-            fontSize:"25px"
+            fontSize: "25px",
           }}
         >
-          <h3 className="text-center mb-4" style={{ color: "#blue", fontSize: "30px", }}>
+          <h3
+            className="text-center mb-4"
+            style={{ color: "#0000ff", fontSize: "30px" }}
+          >
             Register
           </h3>
 
           {/* Personal Info */}
-          <h5 className="mb-3" style={{ color: "#blue", fontSize: "28px", }}>
+          <h5 className="mb-3" style={{ color: "#0000ff", fontSize: "28px" }}>
             Personal Information
           </h5>
 
@@ -166,6 +169,27 @@ const Register = () => {
                 style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
               />
             </div>
+
+            <div className="col-md-6 mb-3">
+              <label>Blood Group</label>
+              <select
+                name="blood"
+                value={formValue.blood}
+                onChange={handleChange}
+                className="form-select form-select-lg w-100"
+                style={{ textAlign: "center", textAlignLast: "center" }}
+              >
+                <option value="">Select blood group</option>
+                {bloodTypes.map((type, i) => (
+                  <option key={i} value={type} style={{ textAlign: "center" }}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="row">
             <div className="col-md-6 mb-3">
               <label>Phone</label>
               <input
@@ -178,22 +202,7 @@ const Register = () => {
                 style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
               />
             </div>
-          </div>
 
-          <div className="mb-3">
-            <label>Address</label>
-            <input
-              name="address"
-              type="text"
-              className="form-control"
-              placeholder="Enter your address"
-              value={formValue.address}
-              onChange={handleChange}
-              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-            />
-          </div>
-
-          <div className="row">
             <div className="col-md-6 mb-3">
               <label>District</label>
               <input
@@ -205,60 +214,6 @@ const Register = () => {
                 onChange={handleChange}
                 style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
               />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label>Country</label>
-              <input
-                name="country"
-                type="text"
-                className="form-control"
-                placeholder="Enter your country"
-                value={formValue.country}
-                onChange={handleChange}
-                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-              />
-            </div>
-          </div>
-
-          {/* Academic Info */}
-          <h5 className="mt-4 mb-3" style={{ color: "#blue", fontSize: "30px", }}>
-            Academic & Professional
-          </h5>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <label>Batch</label>
-              <select
-                name="batch"
-                className="form-control"
-                value={formValue.batch}
-                onChange={handleChange}
-                style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-              >
-                <option value="">Select Batch</option>
-                {generateBatches().map((batch) => (
-                  <option key={batch} value={batch}>
-                    {batch} Batch
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-6 mb-3">
-              <label>Session</label>
-              <select
-  name="session"
-  className="form-control"
-  value={formValue.session}
-  onChange={handleChange}
-  style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
->
-  <option value="">Select Session</option>
-  {generateSessions().map((session) => (
-    <option key={session} value={session}>
-      {session}
-    </option>
-  ))}
-</select>
-
             </div>
           </div>
 
@@ -274,21 +229,9 @@ const Register = () => {
               style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
             />
           </div>
-          <div className="mb-3">
-            <label>Institution</label>
-            <input
-              name="institution"
-              type="text"
-              className="form-control"
-              placeholder="Your institution"
-              value={formValue.institution}
-              onChange={handleChange}
-              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-            />
-          </div>
 
           {/* Social Media */}
-          <h5 className="mt-4 mb-3"  style={{ color: "#blue", fontSize: "30px", }}>
+          <h5 className="mt-4 mb-3" style={{ color: "#0000ff", fontSize: "30px" }}>
             Social Links & Contributions
           </h5>
           <div className="mb-3">
@@ -311,32 +254,6 @@ const Register = () => {
               className="form-control"
               placeholder="LinkedIn profile URL"
               value={formValue.linkedin}
-              onChange={handleChange}
-              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-            />
-          </div>
-          <div className="mb-3">
-            <label>Number of Paper Published</label>
-            <input
-              name="paper"
-              type="number"
-              className="form-control"
-              placeholder="Link to research/paper (optional)"
-              value={formValue.paper}
-              onChange={handleChange}
-              style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
-            />
-          </div>
-
-          {/* Bio */}
-          <div className="mb-3">
-            <label>Short Bio</label>
-            <textarea
-              name="bio"
-              className="form-control"
-              placeholder="Write a short bio"
-              rows={3}
-              value={formValue.bio}
               onChange={handleChange}
               style={{ backgroundColor: "rgba(255,255,255,0.8)" }}
             />
