@@ -84,8 +84,7 @@ const Alldata = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col min-h-screen bg-light">
-        
+      <div className="flex flex-col p-4 mt-10 min-h-screen bg-light">
 
         {/* ─────────────── filters ─────────────── */}
         <div className="d-flex justify-content-between mb-4">

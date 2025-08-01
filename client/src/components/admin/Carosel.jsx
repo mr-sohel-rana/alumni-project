@@ -115,7 +115,7 @@ const Carosel = () => {
                   className="img-fluid"
                   style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
                 />
-                <div className="mt-3">
+                <div className="mt-3 mb-3 d-flex justify-content-center">
                   <Button
                     variant="primary"
                     onClick={() => {
